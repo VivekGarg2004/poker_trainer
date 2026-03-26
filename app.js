@@ -341,7 +341,7 @@ const SCENARIOS = [
     position: 'BTN',
     heroCards: ['Qh','Qd'],
     handName: 'Overpair (QQ)',
-    board: ['9s','4c','2d','Ak','Ks'],
+    board: ['9s','4c','2d','Ad','Ks'],
     stackBB: 40,
     potBB: 18,
     blinds: '100/200',
@@ -493,17 +493,17 @@ const SCENARIOS = [
     position: 'BTN',
     heroCards: ['Ac','9c'],
     handName: 'Flush (nut flush)',
-    board: ['Kc','5c','2c','Jd','7h'],
+    board: ['Kc','5c','Jd','7h','2c'],
     stackBB: 42,
     potBB: 10,
     blinds: '100/200',
-    actionHistory: 'You called BB from BTN. Flop gave flush draw. You called two bets. River is blank. BB (beginner) checks.',
+    actionHistory: "You called BB from BTN. Flop (K♣5♣J♦) gave you a flush draw. You called bets on flop and turn. River: 2♣ — completes your nut flush! BB (beginner) checks.",
     availableActions: ['check','raise'],
     correctActions: ['raise'],
     bestAction: 'Bet big (75–100% pot)',
     explanation: `<strong>You rivered the nut flush — bet large for maximum value.</strong>
-    <br><br>Ac-9c with K♣5♣2♣ on board gives you the nut flush (best possible flush). This is the strongest hand you can hold on a board with three clubs.
-    <br><br>Against a beginner who check-called the flop and turn, they likely have a non-nut flush (like Q♣ or J♣ plus another club), a strong pair, or two pair. All of these will pay you off.
+    <br><br>Ac-9c with K♣5♣J♦7♥ on board, and the river 2♣ completes your nut flush. This is the strongest possible flush.
+    <br><br>Against a beginner who check-called the flop and turn, they likely have a non-nut flush draw that also completed (like Q♣), a strong pair, or two pair. All of these will pay you off.
     <br><br>Bet <strong>75–100% pot</strong> — you have the nuts, make them pay. Beginners hate folding flushes (even non-nut ones). Small bets leave money on the table.`
   },
   {
@@ -602,6 +602,431 @@ const SCENARIOS = [
     <br><br><strong>Check behind and accept the loss.</strong> A river bluff here is lighting chips on fire. Good bluffs require: a player who folds to bets, a credible range, and a meaningful fold frequency. Beginners rarely give you that on rivers.`
   }
 ];
+// ── Full-Hand Scripts ─────────────────────────────────────────────────────────
+const HAND_SCRIPTS = [
+  {
+    id: 1, title: 'Ace-King Suited (BTN)',
+    heroCards: ['Ac','Kc'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 1.5, stackBB: 70, blinds: '100/200',
+        actionHistory: 'Action folds to you on the Button. Both blinds are beginners.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise'],
+        bestAction: 'Raise (2.5–3x)',
+        explanation: `<strong>AKs is the best non-pair hand in poker — always raise.</strong><br><br>2.5–3x builds value and defines your range. Against beginner blinds who rarely 3-bet, you'll often take the pot immediately or play the flop with the initiative.`,
+        villainResponse: {
+          fold:  { desc: 'Both blinds fold. You win the blinds uncontested.', outcome: 'win', potWon: 1.5 },
+          call:  { desc: 'BB calls. Pot is 6 BB. Flop coming...', potBB: 6 },
+          raise: { desc: 'BB calls your raise. Pot is 6 BB. Flop coming...', potBB: 6 },
+        },
+      },
+      {
+        street: 'Flop', board: ['Ah','7d','2c'], potBB: 6, stackBB: 67, blinds: '100/200',
+        actionHistory: 'BB (beginner) checks to you.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (50–75% pot)',
+        explanation: `<strong>Top pair top kicker on a dry rainbow board — bet for value.</strong><br><br>The 7-2 rainbow texture is very safe. Beginners who called with K-X, J-X, or a pocket pair will often pay you off. Checking gives free cards unnecessarily while letting them hit.`,
+        villainResponse: {
+          check: { desc: 'You check back. BB checks the turn too — you missed value.', potBB: 6 },
+          raise: { desc: 'BB calls your bet. Pot is now ~10 BB. Turn card...', potBB: 10 },
+        },
+      },
+      {
+        street: 'Turn', board: ['Ah','7d','2c','9s'], potBB: 10, stackBB: 64, blinds: '100/200',
+        actionHistory: 'BB checks to you again.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (50–65% pot)',
+        explanation: `<strong>The 9♠ is a blank — continue betting for value.</strong><br><br>BB's range is mostly weak (7-X, 2-X, random holdings). A 50–65% pot bet extracts more value and the BB is unlikely to have improved significantly.`,
+        villainResponse: {
+          check: { desc: 'You check back. BB checks river — both check to showdown. Your AK takes it!', outcome: 'win', potWon: 10 },
+          raise: { desc: 'BB folds! You win the pot.', outcome: 'win', potWon: 10 },
+        },
+      },
+    ]
+  },
+  {
+    id: 2, title: '9-8 Suited (BB, flop two pair)',
+    heroCards: ['9h','8h'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 3, stackBB: 55, blinds: '100/200',
+        actionHistory: 'CO (competent) opens to 2.5 BB. Everyone folds to you in BB.',
+        availableActions: ['fold','call','raise'], correctActions: ['call'],
+        bestAction: 'Call',
+        explanation: `<strong>98s has excellent pot odds and implied odds from the BB.</strong><br><br>You're getting ~3:1, closing the action. 98s plays great in single-raised pots — straights, flushes, two pairs are all possible. Calling is clean here.`,
+        villainResponse: {
+          fold:  { desc: 'You fold. CO picks up the blinds.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Pot is 5 BB. Flop coming...', potBB: 5 },
+          raise: { desc: 'CO 4-bets all-in! You fold. Too much pressure with a speculative hand.', outcome: 'fold', potWon: 0 },
+        },
+      },
+      {
+        street: 'Flop', board: ['9c','8s','3d'], potBB: 5, stackBB: 53, blinds: '100/200',
+        actionHistory: 'You flopped top two pair! You check. CO bets 3 BB.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise','call'],
+        bestAction: 'Raise (check-raise to ~10 BB)',
+        explanation: `<strong>Top two pair — check-raise to build the pot!</strong><br><br>On a relatively safe board, you're likely way ahead of CO's c-bet range (overpairs, TPTK). Check-raising extracts value and sets up a big pot where you're a huge favourite. Calling to trap is valid but slower.`,
+        villainResponse: {
+          fold:  { desc: 'You fold top two pair — a costly mistake!', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Pot is 11 BB. Turn coming...', potBB: 11 },
+          raise: { desc: 'CO calls your check-raise! Pot is ~17 BB. Turn...', potBB: 17 },
+        },
+      },
+      {
+        street: 'Turn', board: ['9c','8s','3d','2h'], potBB: 17, stackBB: 48, blinds: '100/200',
+        actionHistory: 'Turn: 2♥ (blank). You check. CO bets 8 BB.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise','call'],
+        bestAction: 'Raise (or call and bet river)',
+        explanation: `<strong>The 2♥ is a blank — you still have top two pair. Raise or call.</strong><br><br>CO is barrelling with likely an overpair or TPTK. You're ahead of that range. Raising now gets the money in while you're a heavy favourite.`,
+        villainResponse: {
+          fold:  { desc: 'You fold top two pair — too tight, you were ahead!', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Pot is 33 BB. River coming...', potBB: 33 },
+          raise: { desc: 'CO calls your raise — more chips go in. River...', potBB: 45 },
+        },
+      },
+      {
+        street: 'River', board: ['9c','8s','3d','2h','Jd'], potBB: 33, stackBB: 40, blinds: '100/200',
+        actionHistory: 'River: J♦. CO checks to you.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (65–80% pot)',
+        explanation: `<strong>The Jack is mostly a blank for CO — bet for value.</strong><br><br>CO likely has KK or QQ (overpairs) or TPTK with AK/AQ. Your two pair beats all of them. Bet 65–80% pot to extract maximum value — they'll often call with an overpair thinking you're bluffing.`,
+        villainResponse: {
+          check: { desc: 'You check back. CO shows K-K — your 9-8 two pair wins at showdown!', outcome: 'win', potWon: 33 },
+          raise: { desc: 'CO calls with K-K! Your 9-8 two pair takes the pot!', outcome: 'win', potWon: 33 },
+        },
+      },
+    ]
+  },
+  {
+    id: 3, title: 'Pocket Kings (Tough Spot)',
+    heroCards: ['Kd','Kh'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 1.5, stackBB: 80, blinds: '100/200',
+        actionHistory: 'You raise UTG to 3 BB. A competent MP player 3-bets to 9 BB. Others fold.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise','call'],
+        bestAction: 'Call or 4-bet (~22 BB)',
+        explanation: `<strong>KK is the 2nd best hand — never fold to a 3-bet preflop!</strong><br><br>Calling keeps your hand disguised. 4-betting is also correct at 80 BB depth. Either line is fine — the key is never folding KK before the flop.`,
+        villainResponse: {
+          fold:  { desc: 'You fold KK — a massive mistake. Never fold KK preflop!', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Pot is 19 BB. Flop coming...', potBB: 19 },
+          raise: { desc: 'Villain calls your 4-bet. Pot is 44 BB. Flop coming...', potBB: 44 },
+        },
+      },
+      {
+        street: 'Flop', board: ['As','Jd','7c'], potBB: 19, stackBB: 71, blinds: '100/200',
+        actionHistory: 'Flop: A♠ J♦ 7♣. Villain (competent) bets 12 BB into 19 BB pot.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold','call'],
+        bestAction: 'Fold (or cautious call)',
+        explanation: `<strong>The Ace on the flop is a massive danger card for KK.</strong><br><br>When a competent player who 3-bet preflop fires large on an Ace-high flop, they often have AK, AQ, or AA. Your KK is beaten by any Ace. Fold or call cautiously — do not raise since you'll only get action from better hands.`,
+        villainResponse: {
+          fold:  { desc: 'You fold KK face-up. Villain shows AK — great read! You saved many chips.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Turn coming — villain has another barrel ready...', potBB: 43 },
+          raise: { desc: "You raise — villain 3-bets all-in! You're crushed vs. AK. Painful fold.", outcome: 'fold', potWon: 0 },
+        },
+      },
+      {
+        street: 'Turn', board: ['As','Jd','7c','2s'], potBB: 43, stackBB: 59, blinds: '100/200',
+        actionHistory: 'Turn: 2♠. Villain fires again — 25 BB into 43 BB pot.',
+        availableActions: ['fold','call'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>Two barrels from a competent player on an Ace-high board — fold KK here.</strong><br><br>A competent 3-bettor firing twice on A-J-7-2 almost certainly has AK or better. Your KK has at best ~10% equity vs. that range. Protect your remaining stack and fold.`,
+        villainResponse: {
+          fold:  { desc: 'You fold. Villain shows AK — your read was correct. Well played discipline!', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call and commit most of your stack. River blanks and villain bets all-in. You fold. Villain shows AK.', outcome: 'loss', potWon: 0 },
+        },
+      },
+    ]
+  },
+  {
+    id: 4, title: 'Pocket Jacks (CO, value extraction)',
+    heroCards: ['Jc','Jd'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 1.5, stackBB: 65, blinds: '100/200',
+        actionHistory: 'Folds to you in CO. BTN and blinds are beginners.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise'],
+        bestAction: 'Raise (2.5x)',
+        explanation: `<strong>JJ is a premium hand from CO — always raise, never limp.</strong><br><br>A 2.5x open steals the blinds often and builds a pot when called. Playing JJ vs. a single beginner in position post-flop with the initiative is highly profitable.`,
+        villainResponse: {
+          fold:  { desc: 'All fold. You win the blinds uncontested.', outcome: 'win', potWon: 1.5 },
+          call:  { desc: 'BTN calls. Pot is 6.5 BB. Flop...', potBB: 6.5 },
+          raise: { desc: 'BTN calls. Pot is 6.5 BB. Flop...', potBB: 6.5 },
+        },
+      },
+      {
+        street: 'Flop', board: ['Jh','7s','2d'], potBB: 6.5, stackBB: 62, blinds: '100/200',
+        actionHistory: 'You flopped top set! BTN (beginner) checks to you.',
+        availableActions: ['check','raise'], correctActions: ['raise','check'],
+        bestAction: 'Bet (55–70% pot)',
+        explanation: `<strong>Top set on a dry board — bet for value and protection.</strong><br><br>Betting 55–70% pot extracts value from 7-X, pocket pairs, and random Jacks. Even on a dry board, slow-playing risks giving free cards to overcards like Q, K, A.`,
+        villainResponse: {
+          check: { desc: 'You check. BTN checks back — they might bet the turn. OK slow-play.', potBB: 6.5 },
+          raise: { desc: 'BTN calls! Pot is ~11 BB. Turn...', potBB: 11 },
+        },
+      },
+      {
+        street: 'Turn', board: ['Jh','7s','2d','9c'], potBB: 11, stackBB: 58, blinds: '100/200',
+        actionHistory: 'Turn: 9♣. BTN checks again.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (60–75% pot)',
+        explanation: `<strong>The 9 adds straight-draw possibilities — keep betting.</strong><br><br>Your set stays way ahead of BTN's range. Betting charges any T-8 straight draws and keeps extracting value from paired holdings.`,
+        villainResponse: {
+          check: { desc: 'You check back. River coming...', potBB: 11 },
+          raise: { desc: 'BTN calls! Pot growing nicely. River...', potBB: 20 },
+        },
+      },
+      {
+        street: 'River', board: ['Jh','7s','2d','9c','4h'], potBB: 20, stackBB: 54, blinds: '100/200',
+        actionHistory: 'River: 4♥ (blank). BTN checks to you.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (55–70% pot)',
+        explanation: `<strong>River is a blank — extract maximum value with your set.</strong><br><br>BTN check-called two streets with something. Value bet 55–70% pot. They might have 9-X (turned a pair), 7-X, or a busted straight draw — all of these are candidates to call a medium bet.`,
+        villainResponse: {
+          check: { desc: 'You check back. BTN shows 9-7 two pair — your set of Jacks wins!', outcome: 'win', potWon: 20 },
+          raise: { desc: 'BTN calls with 9-7 two pair! Your set takes a big pot!', outcome: 'win', potWon: 20 },
+        },
+      },
+    ]
+  },
+  {
+    id: 5, title: 'A-5 Suited (Semi-Bluff Squeeze)',
+    heroCards: ['As','5s'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 5.5, stackBB: 60, blinds: '100/200',
+        actionHistory: 'UTG limps, HJ raises to 2.5 BB, you act from SB. BB is a calling station.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise','fold'],
+        bestAction: '3-bet squeeze (~9 BB) or Fold',
+        explanation: `<strong>A5s is an excellent 3-bet bluff hand from SB.</strong><br><br>It has an Ace blocker (reducing AA/AK combos), nut flush potential, and good equity when called. Squeezing folds out the HJ raiser often and wins the dead money. Folding is also fine — calling OOP in a multiway pot is the worst option.`,
+        villainResponse: {
+          fold:  { desc: 'You fold. Dead money taken by HJ raiser.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'HJ calls your 3-bet. Pot is ~20 BB. Flop...', potBB: 20 },
+          raise: { desc: 'HJ calls your squeeze. Pot is ~20 BB. Flop...', potBB: 20 },
+        },
+      },
+      {
+        street: 'Flop', board: ['5h','Kd','2s'], potBB: 20, stackBB: 51, blinds: '100/200',
+        actionHistory: 'Flop: 5♥ K♦ 2♠. You check. HJ bets 10 BB.',
+        availableActions: ['fold','call','raise'], correctActions: ['call','raise'],
+        bestAction: 'Call (or check-raise bluff)',
+        explanation: `<strong>Bottom pair on K-high board — call or check-raise bluff.</strong><br><br>You hit bottom pair and have a backdoor flush draw. HJ's range has many hands without a King. Calling is fine for pot control; check-raising as a bluff (representing KK or K-X) is high variance but can work. Folding gives up too easily.`,
+        villainResponse: {
+          fold:  { desc: 'You fold bottom pair — reasonable, but you had real equity here.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Pot is 40 BB. Turn...', potBB: 40 },
+          raise: { desc: 'HJ thinks... and folds! Your check-raise bluff worked. You take the pot!', outcome: 'win', potWon: 20 },
+        },
+      },
+      {
+        street: 'Turn', board: ['5h','Kd','2s','5c'], potBB: 40, stackBB: 41, blinds: '100/200',
+        actionHistory: 'Turn: 5♣ — you hit trips! You check. HJ checks back.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Check or small bet (set up river value)',
+        explanation: `<strong>You flopped trips — consider betting now or setting up a river bet.</strong><br><br>Trips on K-5-2-5 is a monster. HJ checked back showing weakness. You can check to induce a bluff on the river, or bet now to build the pot. Either way, your hand is strong — extract value on the river.`,
+        villainResponse: {
+          check: { desc: 'Both check. River coming — time to value bet...', potBB: 40 },
+          raise: { desc: 'HJ folds. You win but may have missed a river bet opportunity.', outcome: 'win', potWon: 40 },
+        },
+      },
+      {
+        street: 'River', board: ['5h','Kd','2s','5c','8h'], potBB: 40, stackBB: 41, blinds: '100/200',
+        actionHistory: 'River: 8♥ (blank). HJ checks to you.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (60–80% pot)',
+        explanation: `<strong>Trip 5s on the river — bet for value!</strong><br><br>HJ checked turn and river showing clear weakness. They might have KQ, KJ, or a pocket pair — all of which will call a medium river bet hoping you're bluffing with a missed draw. Don't check — extract max value.`,
+        villainResponse: {
+          check: { desc: 'You check back. HJ shows Q-Q — your trips win! You left some value on the table though.', outcome: 'win', potWon: 40 },
+          raise: { desc: 'HJ calls with Q-Q — your trip 5s scoop a massive pot! Great value extraction.', outcome: 'win', potWon: 40 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 6: 7-2 offsuit UTG — instant fold ────────────────────────────────
+  {
+    id: 6, title: '7-2 Offsuit (UTG)',
+    heroCards: ['7d','2c'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 1.5, stackBB: 55, blinds: '100/200',
+        actionHistory: 'First to act UTG in a 9-handed tournament. 8 players left to act behind you.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>7-2 offsuit is the worst starting hand in poker — fold immediately.</strong><br><br>No pair potential, no flush draw, no straight potential, and you're UTG with 8 players behind who could have anything. There is zero scenario in which playing this hand is correct. Fold and wait for a better spot.`,
+        villainResponse: {
+          fold:  { desc: 'You fold 7-2. Everyone looks at you and nods approvingly.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You limp in. BB checks. Flop: A-K-Q rainbow. BB bets pot. You fold in misery.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You raise... BTN 3-bets. You fold. You wasted chips raising the worst hand.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 7: K-3 offsuit SB, multi-way limped pot — fold ──────────────────
+  {
+    id: 7, title: 'K-3 Offsuit (SB, multiway)',
+    heroCards: ['Kc','3h'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 4.5, stackBB: 48, blinds: '100/200',
+        actionHistory: 'UTG limps, MP limps, CO limps. Action to you in SB.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>K-3 offsuit is too weak to play in a multiway limped pot from SB.</strong><br><br>You're out of position against 4 players. K-3o has terrible playability — you'll often flop a weak King that's dominated, or miss entirely. Raising to iso 4 limpers from SB is reckless. Calling is a chip leak. Just fold.`,
+        villainResponse: {
+          fold:  { desc: 'You fold K-3o. Smart. UTG shows K-Q at showdown — you would have been crushed.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call and see a flop of K-9-6. You have top pair weak kicker — UTG bets big. You fold.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You raise to 10 BB — MP re-raises to 25 BB. You fold your K-3 in shame.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 8: QJo BB, face UTG raise + CO cold call — fold ─────────────────
+  {
+    id: 8, title: 'Q-J Offsuit (BB, vs tight UTG + cold call)',
+    heroCards: ['Qh','Jc'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 7.5, stackBB: 52, blinds: '100/200',
+        actionHistory: 'UTG (tight, competent) raises to 3 BB. CO (beginner) cold-calls. Action to you in BB.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>QJo vs a tight UTG raise + cold call should be folded from the BB.</strong><br><br>UTG's opening range is very strong — AK, AQ, AJ, KK, QQ, JJ, TT and maybe a few other hands. A cold-caller in CO widens this to a multi-way pot where QJo is often dominated (AJ, AQ both dominate Q) or trailing a pair. You'll be OOP in a bloated pot with a middling hand. Fold and save your BB.`,
+        villainResponse: {
+          fold:  { desc: 'You fold. UTG shows QQ at showdown — your QJ was already losing.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Flop comes A-Q-7. UTG c-bets pot. Your middle pair is no good — you fold.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You 3-bet squeeze. UTG 4-bets instantly. You fold QJo realising you picked the wrong spot.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 9: 54s MP, face UTG open — fold ─────────────────────────────────
+  {
+    id: 9, title: '5-4 Suited (MP, facing UTG open)',
+    heroCards: ['5h','4h'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 3.5, stackBB: 32, blinds: '100/200',
+        actionHistory: 'UTG (competent) raises to 3 BB. Folds to you in MP.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>5-4 suited is a fun hand but can't profitably call here at 32 BB effective.</strong><br><br>Set-mining math doesn't apply to suited connectors the same way — you need deep stacks (50+ BB) for implied odds to justify calling. At 32 BB, calling 3 BB = 9% of your stack with a hand that mostly flops draws or misses. You'll often face tough c-bet decisions out of position with no made hand. Fold and protect your stack.`,
+        villainResponse: {
+          fold:  { desc: 'You fold 5-4s. Smart stack preservation at 32 BB.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Flop: A-K-2 rainbow. UTG fires 5 BB. You fold your 5-high.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You raise — UTG calls. Flop: A-K-8. UTG checks, you c-bet, UTG check-raises. You fold.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 10: T8o CO, face BTN 3-bet after opening — fold ─────────────────
+  {
+    id: 10, title: 'T-8 Offsuit (CO open, face 3-bet)',
+    heroCards: ['Tc','8d'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 9, stackBB: 45, blinds: '100/200',
+        actionHistory: 'You open CO to 2.5 BB. BTN (competent player) 3-bets to 8 BB. Blinds fold.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>T-8 offsuit cannot call a 3-bet from a competent BTN.</strong><br><br>A competent BTN 3-bet range is strong — JJ+, AK, AQs, and a few bluffs. T8o has roughly 30% equity vs. that range and plays terribly OOP postflop. You'd need to call 5.5 more BB with a hand that flops well maybe 20% of the time and is behind most of the 3-bettor's range. Fold clean and look for better spots.`,
+        villainResponse: {
+          fold:  { desc: 'You fold T-8o to the 3-bet. Solid laydown vs. a competent player.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Flop: Q-J-9. You have an OESD — but BTN fires 2/3 pot. You call. Turn blanks. BTN fires again. You fold.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You 4-bet bluff — BTN calls. Flop: A-K-7. You have nothing. You give up. Huge mistake.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 11: AJo UTG, face 3-bet from competent BTN — fold ───────────────
+  {
+    id: 11, title: 'A-J Offsuit (UTG, face 3-bet)',
+    heroCards: ['Ah','Jd'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 10, stackBB: 60, blinds: '100/200',
+        actionHistory: 'You open UTG to 3 BB. BTN (competent) 3-bets to 9 BB. Folds back to you.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold (or reluctant call)',
+        explanation: `<strong>AJo facing a competent BTN 3-bet after an UTG open is a tough fold — but usually correct.</strong><br><br>When a competent player 3-bets vs. UTG (the tightest position), their range is AK, AQ, KK, QQ, JJ, and maybe TT/AJs. AJo is dominated by most of that range. You have the worst Ace and worst Jack vs. their 3-bet hands. Folding saves you from being dominated OOP in a big pot. A reluctant call is acceptable, but 4-betting is a blunder.`,
+        villainResponse: {
+          fold:  { desc: 'You fold AJo face-up. BTN flashes AQ — you were dominated. Good laydown.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Flop: A-8-3. You bet — BTN raises. You fold AJ (top pair) correctly.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You 4-bet — BTN calls. Flop: A-K-2. BTN leads big. Your AJ can\'t continue. You fold.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 12: J5 offsuit BB, face BTN steal, defend then fold flop ─────────
+  {
+    id: 12, title: 'J-5 Offsuit (BB, face BTN steal)',
+    heroCards: ['Jd','5c'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 3.5, stackBB: 50, blinds: '100/200',
+        actionHistory: 'Folds around. BTN (beginner) raises to 2.5 BB. SB folds. Action to you in BB.',
+        availableActions: ['fold','call','raise'], correctActions: ['fold'],
+        bestAction: 'Fold',
+        explanation: `<strong>J-5 offsuit should be folded even vs. a BTN steal.</strong><br><br>While it's tempting to defend your BB vs. a likely-stealing BTN, J5o is simply too weak. You'll miss the flop heavily and have no good draws. The 1.5 BB you save by folding is better than calling with a dominated hand that plays terribly multi-street. Hands like K7s, Q8s, J6s are defensible folds; J5o is not defensible.`,
+        villainResponse: {
+          fold:  { desc: 'You fold J-5o. BTN takes the pot but that\'s fine — you saved a bet.', outcome: 'fold', potWon: 0 },
+          call:  { desc: 'You call. Flop: Q-9-4. You have air. BTN c-bets 2 BB. You fold.', outcome: 'fold', potWon: 0 },
+          raise: { desc: 'You 3-bet bluff — BTN calls. Flop: A-7-2. You fire a c-bet. BTN calls. You shut down. Wasted chips.', outcome: 'fold', potWon: 0 },
+        },
+      },
+    ]
+  },
+  // ─── Hand 13: KQs CO, clean value hand, win at river ─────────────────────
+  {
+    id: 13, title: 'K-Q Suited (CO, value hand)',
+    heroCards: ['Kh','Qh'],
+    streets: [
+      {
+        street: 'Pre-Flop', board: [], potBB: 1.5, stackBB: 65, blinds: '100/200',
+        actionHistory: 'Folds to you in CO. BTN and both blinds are beginners.',
+        availableActions: ['fold','call','raise'], correctActions: ['raise'],
+        bestAction: 'Raise (2.5x)',
+        explanation: `<strong>KQs is a very strong hand from CO — always raise, never limp.</strong><br><br>You have a suited broadway hand with excellent equity vs. calling ranges. 2.5x pick up the blinds often or plays well in position post-flop.`,
+        villainResponse: {
+          fold:  { desc: 'All fold. You pick up the blinds.', outcome: 'win', potWon: 1.5 },
+          call:  { desc: 'BB calls. Pot is 6 BB. Flop...', potBB: 6 },
+          raise: { desc: 'BB calls. Pot is 6 BB. Flop...', potBB: 6 },
+        },
+      },
+      {
+        street: 'Flop', board: ['Kd','7h','2c'], potBB: 6, stackBB: 62, blinds: '100/200',
+        actionHistory: 'Flop: K♦ 7♥ 2♣ — you top pair top kicker! BB checks.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (55–70% pot)',
+        explanation: `<strong>TPTK on a dry board — bet for value against the beginner.</strong><br><br>The 7-2 rainbow board is safe for your range. Bet to extract value from weak Kings, 7-X, or random pairs. Checking is a mistake — you're giving free cards.`,
+        villainResponse: {
+          check: { desc: 'You check back. BB bets the turn — you can raise then.', potBB: 6 },
+          raise: { desc: 'BB calls! Pot is ~10 BB. Turn...', potBB: 10 },
+        },
+      },
+      {
+        street: 'Turn', board: ['Kd','7h','2c','4s'], potBB: 10, stackBB: 59, blinds: '100/200',
+        actionHistory: 'Turn: 4♠ (blank). BB checks again.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (50–65% pot)',
+        explanation: `<strong>The 4 is a complete blank — keep betting for value.</strong><br><br>BB's range is still weak. Extract more value with a 50–65% pot bet. They likely have a 7, a 2, or a random pair that will call one more time.`,
+        villainResponse: {
+          check: { desc: 'You check. BB checks river too — value missed.', potBB: 10 },
+          raise: { desc: 'BB calls again. Pot is ~18 BB. River...', potBB: 18 },
+        },
+      },
+      {
+        street: 'River', board: ['Kd','7h','2c','4s','Jd'], potBB: 18, stackBB: 56, blinds: '100/200',
+        actionHistory: 'River: J♦. BB checks to you.',
+        availableActions: ['check','raise'], correctActions: ['raise'],
+        bestAction: 'Bet (50–60% pot)',
+        explanation: `<strong>The Jack could have improved BB but bet for thin value anyway.</strong><br><br>BB who called twice with a weak hand isn't folding one medium river bet to a Jack. Your TPTK is still likely best. Bet 50–60% pot to extract the final bit of value.`,
+        villainResponse: {
+          check: { desc: 'You check back. BB shows 7-6 — your KQ wins the pot!', outcome: 'win', potWon: 18 },
+          raise: { desc: 'BB calls with 7-6! Your KQ takes down a nice pot.', outcome: 'win', potWon: 18 },
+        },
+      },
+    ]
+  },
+];
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let state = {
@@ -610,7 +1035,16 @@ let state = {
   score: 0,
   answered: false,
   chosenAction: null,
+  chosenSizing: null,
+  // Full-hand mode
+  handMode: false,
+  handScript: null,
+  handStreetIdx: 0,
+  handPot: 0,
+  handRecap: [],
+  handResult: null,
 };
+
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 function shuffle(arr) {
@@ -740,12 +1174,18 @@ function renderSeats(scenario) {
 function renderActions(scenario) {
   const container = document.getElementById('action-buttons');
   container.innerHTML = '';
+  // Clear any lingering sizer
+  const existingSizer = document.getElementById('raise-sizer');
+  if (existingSizer) existingSizer.remove();
+
+  const facingBet = scenario.availableActions.includes('call') || scenario.availableActions.includes('fold');
+  const raiseLabel = facingBet ? 'Raise' : 'Bet';
 
   const actionConfig = {
-    fold:  { label: 'Fold',  cls: 'btn-fold',  icon: '✕' },
-    call:  { label: 'Call',  cls: 'btn-call',  icon: '✓' },
-    check: { label: 'Check', cls: 'btn-check', icon: '◇' },
-    raise: { label: 'Raise / Bet', cls: 'btn-raise', icon: '↑' },
+    fold:  { label: 'Fold',        cls: 'btn-fold',  icon: '✕' },
+    call:  { label: 'Call',        cls: 'btn-call',  icon: '✓' },
+    check: { label: 'Check',       cls: 'btn-check', icon: '◇' },
+    raise: { label: raiseLabel,    cls: 'btn-raise', icon: '↑' },
   };
 
   scenario.availableActions.forEach(action => {
@@ -754,9 +1194,89 @@ function renderActions(scenario) {
     btn.className = `btn ${cfg.cls}`;
     btn.id = `btn-${action}`;
     btn.innerHTML = `${cfg.icon} ${cfg.label}`;
-    btn.addEventListener('click', () => handleAction(action, scenario));
+    if (action === 'raise') {
+      btn.addEventListener('click', () => showRaiseSizer(scenario, false));
+    } else {
+      btn.addEventListener('click', () => handleAction(action, scenario));
+    }
     container.appendChild(btn);
   });
+}
+
+function getPreFlopSizings(potBB) {
+  if (potBB > 2.5) {
+    return [
+      { label: '3-bet (3x)', bb: 9 },
+      { label: '3-bet (4x)', bb: 12 },
+      { label: '4-bet (~22 BB)', bb: 22 },
+      { label: 'All-in', allin: true },
+    ];
+  }
+  return [
+    { label: '2x',     bb: 2 },
+    { label: '2.5x',   bb: 2.5 },
+    { label: '3x',     bb: 3 },
+    { label: '4x',     bb: 4 },
+    { label: 'All-in', allin: true },
+  ];
+}
+
+function getPostFlopSizings(potBB) {
+  return [
+    { label: '25% pot',  bb: Math.round(potBB * 0.25 * 10) / 10 },
+    { label: '33% pot',  bb: Math.round(potBB * 0.33 * 10) / 10 },
+    { label: '50% pot',  bb: Math.round(potBB * 0.50 * 10) / 10 },
+    { label: '75% pot',  bb: Math.round(potBB * 0.75 * 10) / 10 },
+    { label: '100% pot', bb: potBB },
+    { label: 'All-in',   allin: true },
+  ];
+}
+
+function showRaiseSizer(scenarioOrStreet, isHandMode) {
+  if (state.answered) return;
+
+  document.getElementById('btn-raise').classList.add('active-raise');
+  const existing = document.getElementById('raise-sizer');
+  if (existing) existing.remove();
+
+  const isPreFlop = scenarioOrStreet.type === 'preflop' || scenarioOrStreet.street === 'Pre-Flop';
+  const sizings   = isPreFlop
+    ? getPreFlopSizings(scenarioOrStreet.potBB)
+    : getPostFlopSizings(scenarioOrStreet.potBB);
+  const stackBB   = scenarioOrStreet.stackBB;
+
+  const row = document.createElement('div');
+  row.id = 'raise-sizer';
+  row.className = 'raise-sizer-row';
+
+  const lbl = document.createElement('div');
+  lbl.className = 'raise-sizer-label';
+  lbl.textContent = 'Choose your sizing:';
+  row.appendChild(lbl);
+
+  const chips = document.createElement('div');
+  chips.className = 'raise-chips-row';
+
+  sizings.forEach(sz => {
+    const displayBB = sz.allin ? `${stackBB} BB` : `${sz.bb} BB`;
+    const chip      = document.createElement('button');
+    chip.className  = 'raise-chip';
+    chip.innerHTML  = `<span class="rc-label">${sz.label}</span><span class="rc-chips">${displayBB}</span>`;
+    chip.addEventListener('click', () => {
+      chips.querySelectorAll('.raise-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      state.chosenSizing = sz.label;
+      setTimeout(() => {
+        if (isHandMode) handleHandAction('raise', scenarioOrStreet);
+        else handleAction('raise', scenarioOrStreet);
+      }, 200);
+    });
+    chips.appendChild(chip);
+  });
+
+  row.appendChild(chips);
+  const actionArea = document.getElementById('action-buttons');
+  actionArea.insertAdjacentElement('afterend', row);
 }
 
 // ── Action handler ────────────────────────────────────────────────────────────
@@ -765,15 +1285,15 @@ function handleAction(action, scenario) {
   state.answered = true;
   state.chosenAction = action;
 
+  const sizer = document.getElementById('raise-sizer');
+  if (sizer) sizer.remove();
+
   const isCorrect = scenario.correctActions.includes(action);
   if (isCorrect) state.score++;
 
   document.getElementById('stat-score').textContent = `${state.score}/${state.current + 1}`;
-
-  // Disable all buttons
   document.querySelectorAll('.action-buttons .btn').forEach(b => b.disabled = true);
 
-  // Show explanation
   showExplanation(isCorrect, action, scenario);
 }
 
@@ -782,22 +1302,43 @@ function showExplanation(isCorrect, action, scenario) {
   panel.className = `explanation-panel show ${isCorrect ? 'correct' : 'incorrect'}`;
   panel.style.display = 'flex';
 
-  document.getElementById('result-icon').textContent  = isCorrect ? '✅ Correct!' : '❌ Not Quite';
+  const actionLabel = action.charAt(0).toUpperCase() + action.slice(1);
+  const sizingNote  = (action === 'raise' && state.chosenSizing) ? ` — ${state.chosenSizing}` : '';
+
+  let sizingFeedback = '';
+  if (action === 'raise' && state.chosenSizing && isCorrect) {
+    const best = scenario.bestAction.toLowerCase();
+    const sz   = state.chosenSizing.toLowerCase();
+    const tooSmall = (sz.includes('25%') || sz.includes('33%') || sz === '2x') &&
+      (best.includes('75') || best.includes('100') || best.includes('3x') || best.includes('4x') || best.includes('squeeze'));
+    const tooBig = (sz.includes('all-in')) &&
+      !best.includes('all-in') && !best.includes('shove');
+    if (tooSmall)     sizingFeedback = `<div class="sizing-note sizing-warn">⚠️ Sizing is a bit small — consider going larger for more value.</div>`;
+    else if (tooBig)  sizingFeedback = `<div class="sizing-note sizing-warn">⚠️ Sizing too large — you may fold hands you want to call.</div>`;
+    else              sizingFeedback = `<div class="sizing-note sizing-ok">✓ Good sizing choice!</div>`;
+  }
+
+  document.getElementById('result-icon').textContent = isCorrect ? '✅ Correct!' : '❌ Not Quite';
   document.getElementById('result-icon').parentElement.querySelector('.result-label').textContent =
     isCorrect
-      ? 'Good read on that spot.'
-      : `You chose: ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+      ? `Good read!${sizingNote}`
+      : `You chose: ${actionLabel}${sizingNote}`;
 
   document.getElementById('best-action-value').textContent = scenario.bestAction;
-  document.getElementById('explanation-text').innerHTML = scenario.explanation;
+  document.getElementById('explanation-text').innerHTML = sizingFeedback + scenario.explanation;
 
-  // Scroll into view
+  // Reset next button (may have been mutated by hand mode)
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = 'Next Scenario →';
+  nextBtn.onclick = null;
+
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── Next scenario ─────────────────────────────────────────────────────────────
 function nextScenario() {
   state.current++;
+  state.chosenSizing = null;
   if (state.current >= state.order.length) {
     showEndScreen();
   } else {
@@ -847,36 +1388,265 @@ function init() {
     score: 0,
     answered: false,
     chosenAction: null,
+    chosenSizing: null,
+    handMode: false,
+    handScript: null,
+    handStreetIdx: 0,
+    handPot: 0,
+    handRecap: [],
+    handResult: null,
   };
   document.getElementById('game-area').style.display = 'block';
   document.getElementById('end-screen').className = 'end-screen';
+  document.getElementById('hand-result-screen').style.display = 'none';
+  document.getElementById('hand-mode-banner').style.display = 'none';
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Full-Hand Mode ────────────────────────────────────────────────────────────
+function startFullHand() {
+  const script = HAND_SCRIPTS[Math.floor(Math.random() * HAND_SCRIPTS.length)];
+  state.handMode      = true;
+  state.handScript    = script;
+  state.handStreetIdx = 0;
+  state.handPot       = 0;
+  state.handRecap     = [];
+  state.handResult    = null;
+  state.chosenSizing  = null;
+
+  document.getElementById('end-screen').className = 'end-screen';
+  document.getElementById('hand-result-screen').style.display = 'none';
+  document.getElementById('game-area').style.display = 'block';
+  document.getElementById('hand-mode-banner').textContent = `🃏 Full Hand: ${script.title}`;
+  document.getElementById('hand-mode-banner').style.display = 'block';
+  renderHandStreet();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderHandStreet() {
+  const script     = state.handScript;
+  const streetData = script.streets[state.handStreetIdx];
+
+  const total = script.streets.length;
+  document.getElementById('progress-fill').style.width = `${(state.handStreetIdx / total) * 100}%`;
+  document.getElementById('counter-text').textContent  = `${streetData.street} — ${script.title}`;
+
+  const typeMap = { 'Pre-Flop': 'preflop', 'Flop': 'flop', 'Turn': 'turn', 'River': 'river' };
+  const badge   = document.getElementById('scenario-badge');
+  badge.textContent = streetData.street.toUpperCase();
+  badge.className   = `scenario-type-badge badge-${typeMap[streetData.street] || 'preflop'}`;
+
+  document.getElementById('hero-position').textContent = 'HERO';
+  document.getElementById('info-blinds').textContent   = streetData.blinds;
+  document.getElementById('info-stack').textContent    = `${streetData.stackBB} BB`;
+  document.getElementById('info-pot').textContent      = `${streetData.potBB} BB`;
+  document.getElementById('info-players').textContent  = '9-handed';
+  document.getElementById('villain-bar').innerHTML     = streetData.actionHistory;
+
+  const heroEl = document.getElementById('hero-cards');
+  heroEl.innerHTML = '';
+  script.heroCards.forEach(c => heroEl.appendChild(makeCard(c)));
+  document.getElementById('hero-hand-name').textContent = script.title;
+
+  const boardSection = document.getElementById('board-section');
+  const boardEl      = document.getElementById('board-cards');
+  boardEl.innerHTML  = '';
+  if (streetData.board.length > 0) {
+    boardSection.style.display = 'block';
+    streetData.board.forEach((c, i) => {
+      const card = makeCard(c);
+      card.style.animationDelay = `${i * 0.08}s`;
+      boardEl.appendChild(card);
+    });
+    for (let i = streetData.board.length; i < 5; i++) boardEl.appendChild(makePlaceholderCard());
+  } else {
+    boardSection.style.display = 'none';
+  }
+
+  const pseudo = { position: 'BTN' };
+  renderSeats(pseudo);
+
+  // Actions
+  const container = document.getElementById('action-buttons');
+  container.innerHTML = '';
+  const existing = document.getElementById('raise-sizer');
+  if (existing) existing.remove();
+
+  const facingBet = streetData.availableActions.includes('call') || streetData.availableActions.includes('fold');
+  const raiseLabel = facingBet ? 'Raise' : 'Bet';
+  const actionConfig = {
+    fold:  { label: 'Fold',      cls: 'btn-fold',  icon: '✕' },
+    call:  { label: 'Call',      cls: 'btn-call',  icon: '✓' },
+    check: { label: 'Check',     cls: 'btn-check', icon: '◇' },
+    raise: { label: raiseLabel,  cls: 'btn-raise', icon: '↑' },
+  };
+  streetData.availableActions.forEach(action => {
+    const cfg = actionConfig[action];
+    const btn = document.createElement('button');
+    btn.className = `btn ${cfg.cls}`;
+    btn.id = `btn-${action}`;
+    btn.innerHTML = `${cfg.icon} ${cfg.label}`;
+    if (action === 'raise') {
+      btn.addEventListener('click', () => showRaiseSizer(streetData, true));
+    } else {
+      btn.addEventListener('click', () => handleHandAction(action, streetData));
+    }
+    container.appendChild(btn);
+  });
+
+  const expPanel = document.getElementById('explanation-panel');
+  expPanel.className = 'explanation-panel';
+  expPanel.style.display = 'none';
+  state.answered    = false;
+  state.chosenAction  = null;
+  state.chosenSizing  = null;
+
+  // Reset next button
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = 'Next Street →';
+  nextBtn.onclick = null;
+}
+
+function handleHandAction(action, streetData) {
+  if (state.answered) return;
+  state.answered   = true;
+  state.chosenAction = action;
+
+  const sizer = document.getElementById('raise-sizer');
+  if (sizer) sizer.remove();
+
+  const isCorrect = streetData.correctActions.includes(action);
+  document.querySelectorAll('.action-buttons .btn').forEach(b => b.disabled = true);
+
+  const sizingNote = (action === 'raise' && state.chosenSizing) ? ` (${state.chosenSizing})` : '';
+  state.handRecap.push({
+    street: streetData.street,
+    action: action + sizingNote,
+    correct: isCorrect,
+    bestAction: streetData.bestAction,
+  });
+
+  const response = streetData.villainResponse[action];
+
+  const panel = document.getElementById('explanation-panel');
+  panel.className = `explanation-panel show ${isCorrect ? 'correct' : 'incorrect'}`;
+  panel.style.display = 'flex';
+
+  const actionLabel = action.charAt(0).toUpperCase() + action.slice(1);
+  document.getElementById('result-icon').textContent = isCorrect ? '✅ Correct!' : '❌ Not Ideal';
+  document.getElementById('result-icon').parentElement.querySelector('.result-label').textContent =
+    isCorrect ? `Good play${sizingNote ? ' — ' + sizingNote : ''}!` : `You chose: ${actionLabel}${sizingNote}`;
+
+  document.getElementById('best-action-value').textContent = streetData.bestAction;
+
+  const villainHtml = response ? `<div class="villain-response-box">🎯 <strong>Villain:</strong> ${response.desc}</div>` : '';
+  document.getElementById('explanation-text').innerHTML = villainHtml + streetData.explanation;
+
+  const nextBtn = document.getElementById('btn-next');
+  if (response && response.outcome) {
+    state.handResult = response.outcome;
+    state.handPot    = response.potWon || 0;
+    nextBtn.textContent = 'See Hand Result →';
+    nextBtn.onclick = () => showHandResult();
+  } else {
+    const nextPot = (response && response.potBB) ? response.potBB : streetData.potBB;
+    const isLastStreet = state.handStreetIdx >= state.handScript.streets.length - 1;
+    if (isLastStreet) {
+      state.handResult = 'win';
+      state.handPot    = nextPot;
+      nextBtn.textContent = 'See Hand Result →';
+      nextBtn.onclick = () => showHandResult();
+    } else {
+      nextBtn.textContent = 'Next Street →';
+      nextBtn.onclick = () => {
+        state.handStreetIdx++;
+        state.handScript.streets[state.handStreetIdx].potBB = nextPot;
+        renderHandStreet();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+    }
+  }
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showHandResult() {
+  document.getElementById('game-area').style.display = 'none';
+  document.getElementById('hand-mode-banner').style.display = 'none';
+
+  const resultScreen = document.getElementById('hand-result-screen');
+  resultScreen.style.display = 'flex';
+
+  const result = state.handResult;
+  const potWon = state.handPot;
+
+  document.getElementById('hand-result-icon').textContent =
+    result === 'win' ? '🏆' : result === 'fold' ? '🃏' : '💀';
+  document.getElementById('hand-result-title').textContent =
+    result === 'win'  ? 'You won the hand!' :
+    result === 'fold' ? 'You folded.' : 'You lost this one.';
+  const potEl = document.getElementById('hand-result-pot');
+  potEl.textContent = result === 'win' ? `+${potWon} BB` : result === 'loss' ? `−${potWon} BB` : '—';
+  potEl.className   = `hand-result-pot pot-${result}`;
+
+  const recapEl = document.getElementById('hand-recap');
+  recapEl.innerHTML = '';
+  state.handRecap.forEach(r => {
+    const row = document.createElement('div');
+    row.className = `recap-row ${r.correct ? 'recap-correct' : 'recap-incorrect'}`;
+    row.innerHTML = `
+      <span class="recap-street">${r.street}</span>
+      <span class="recap-action">${r.action.charAt(0).toUpperCase() + r.action.slice(1)}</span>
+      <span class="recap-verdict">${r.correct ? '✓ Good' : '✗ Better: ' + r.bestAction}</span>
+    `;
+    recapEl.appendChild(row);
+  });
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
 document.getElementById('btn-next').addEventListener('click', nextScenario);
 document.getElementById('btn-restart').addEventListener('click', init);
+document.getElementById('btn-play-hand').addEventListener('click', startFullHand);
+document.getElementById('btn-hand-restart').addEventListener('click', startFullHand);
+document.getElementById('btn-hand-back').addEventListener('click', init);
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if (state.answered) {
-    if (e.key === 'Enter' || e.key === 'ArrowRight') nextScenario();
+    if (e.key === 'Enter' || e.key === 'ArrowRight') {
+      if (!state.handMode) nextScenario();
+    }
     return;
   }
-  const scenario = SCENARIOS[state.order[state.current]];
-  if (!scenario) return;
+
   const keyMap = {
     'f': 'fold', 'F': 'fold',
     'c': 'call', 'C': 'call',
     'r': 'raise','R': 'raise',
     'k': 'check','K': 'check',
   };
+
+  if (state.handMode) {
+    const sd = state.handScript && state.handScript.streets[state.handStreetIdx];
+    if (!sd) return;
+    const action = keyMap[e.key];
+    if (action && sd.availableActions.includes(action)) {
+      if (action === 'raise') showRaiseSizer(sd, true);
+      else handleHandAction(action, sd);
+    }
+    return;
+  }
+
+  const scenario = SCENARIOS[state.order[state.current]];
+  if (!scenario) return;
   const action = keyMap[e.key];
   if (action && scenario.availableActions.includes(action)) {
-    handleAction(action, scenario);
+    if (action === 'raise') showRaiseSizer(scenario, false);
+    else handleAction(action, scenario);
   }
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 init();
+

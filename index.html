@@ -17,6 +17,7 @@
     <div class="header-stats">
       <div class="stat-pill">9-Handed Tournament</div>
       <div class="stat-pill">Score: <span id="stat-score">0/0</span></div>
+      <button class="btn-play-hand-header" id="btn-play-hand">▶ Play Full Hand</button>
     </div>
   </header>
 
@@ -24,6 +25,9 @@
   <div class="progress-bar-wrap">
     <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
   </div>
+
+  <!-- ── Hand Mode Banner ── -->
+  <div class="hand-mode-banner" id="hand-mode-banner" style="display:none"></div>
 
   <!-- ── Game Area ── -->
   <main id="game-area">
@@ -83,7 +87,7 @@
     <!-- Action area -->
     <div class="action-area">
       <div class="action-prompt">
-        What is your action? <span style="color:var(--text-muted);font-size:0.78rem;font-weight:400;">(keyboard: F=Fold, C=Call, R=Raise, K=Check)</span>
+        What is your action? <span style="color:var(--text-muted);font-size:0.78rem;font-weight:400;">(keyboard: F=Fold, C=Call, R=Raise/Bet, K=Check)</span>
       </div>
       <div class="action-buttons" id="action-buttons"></div>
     </div>
@@ -113,7 +117,27 @@
       <div class="end-score-text" id="end-score-text">0/0</div>
     </div>
     <div class="end-grade"></div>
-    <button class="btn-restart" id="btn-restart">Play Again ↺</button>
+    <div class="end-actions">
+      <button class="btn-restart" id="btn-restart">Play Again ↺</button>
+      <button class="btn-play-hand-end" id="btn-play-hand-end-unused">▶ Play Full Hand</button>
+    </div>
+  </div>
+
+  <!-- ── Hand Result Screen ── -->
+  <div class="hand-result-screen" id="hand-result-screen" style="display:none">
+    <div class="hand-result-icon" id="hand-result-icon">🏆</div>
+    <div class="hand-result-title" id="hand-result-title">You won the hand!</div>
+    <div class="hand-result-pot pot-win" id="hand-result-pot">+0 BB</div>
+
+    <div class="hand-recap-section">
+      <div class="hand-recap-label">Street-by-Street Recap</div>
+      <div class="hand-recap" id="hand-recap"></div>
+    </div>
+
+    <div class="hand-result-actions">
+      <button class="btn-hand-restart" id="btn-hand-restart">▶ Play Another Hand</button>
+      <button class="btn-hand-back" id="btn-hand-back">← Back to Scenarios</button>
+    </div>
   </div>
 
   <script src="app.js"></script>

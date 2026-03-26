@@ -547,7 +547,6 @@ main {
 .seat.is-villain .seat-dot { background: rgba(200,50,50,0.3); border-color: rgba(231,76,60,0.5); color: #ff9090; }
 .seat.is-dead .seat-dot { background: rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.05); }
 
-/* ── Responsive ── */
 @media (max-width: 580px) {
   header { padding: 14px 16px; }
   main { padding: 16px 12px 40px; }
@@ -555,3 +554,264 @@ main {
   .card { width: 50px; height: 72px; }
   .btn { padding: 11px 20px; font-size: 0.84rem; }
 }
+
+/* ── Play Full Hand button (header) ── */
+.btn-play-hand-header {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff;
+  border: 1px solid rgba(139,92,246,0.5);
+  padding: 7px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 0 18px rgba(124,58,237,0.25);
+  letter-spacing: 0.02em;
+}
+.btn-play-hand-header:hover {
+  box-shadow: 0 0 28px rgba(124,58,237,0.5);
+  transform: translateY(-1px);
+}
+
+/* ── Hand Mode Banner ── */
+.hand-mode-banner {
+  background: linear-gradient(90deg, rgba(124,58,237,0.25), rgba(91,33,182,0.15));
+  border-bottom: 1px solid rgba(139,92,246,0.3);
+  color: #c4b5fd;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 20px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Raise Sizer Row ── */
+.raise-sizer-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: var(--radius-sm);
+  animation: fadeIn 0.2s ease;
+  margin-top: 4px;
+}
+
+.raise-sizer-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.raise-chips-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.raise-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(212,168,67,0.3);
+  background: rgba(212,168,67,0.06);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+  min-width: 70px;
+}
+.raise-chip:hover {
+  background: rgba(212,168,67,0.18);
+  border-color: rgba(212,168,67,0.6);
+  transform: translateY(-2px);
+}
+.raise-chip.selected {
+  background: rgba(212,168,67,0.28);
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(212,168,67,0.3);
+}
+
+.rc-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+.rc-chips {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Raise button active state */
+.btn.active-raise {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 22px rgba(212,168,67,0.45) !important;
+}
+
+/* ── Sizing Feedback ── */
+.sizing-note {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+.sizing-ok   { background: rgba(39,174,96,0.12); color: #5af07a; border: 1px solid rgba(39,174,96,0.3); }
+.sizing-warn { background: rgba(243,156,18,0.12); color: #f9c87c; border: 1px solid rgba(243,156,18,0.3); }
+
+/* ── Villain Response Box ── */
+.villain-response-box {
+  background: rgba(124,58,237,0.12);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: #c4b5fd;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.villain-response-box strong { color: #e9d5ff; }
+
+/* ── End Screen actions ── */
+.end-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn-play-hand-end {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+  transition: all 0.18s;
+}
+.btn-play-hand-end:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(124,58,237,0.5); }
+
+/* ── Hand Result Screen ── */
+.hand-result-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 60px 24px 80px;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.hand-result-icon {
+  font-size: 4rem;
+  animation: bounceIn 0.5s ease;
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.hand-result-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--gold);
+}
+
+.hand-result-pot {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.pot-win  { color: #5af07a; text-shadow: 0 0 20px rgba(90,240,122,0.4); }
+.pot-loss { color: #ff7070; text-shadow: 0 0 20px rgba(255,112,112,0.4); }
+.pot-fold { color: var(--text-muted); }
+
+/* Hand recap table */
+.hand-recap-section {
+  width: 100%;
+  max-width: 500px;
+}
+.hand-recap-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.hand-recap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.recap-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+.recap-correct   { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.25); }
+.recap-incorrect { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.25); }
+.recap-street    { color: var(--text-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.recap-action    { color: var(--text-primary); }
+.recap-verdict   { text-align: right; }
+.recap-correct .recap-verdict   { color: #5af07a; }
+.recap-incorrect .recap-verdict { color: #ff9090; font-size: 0.78rem; }
+
+/* Hand result action buttons */
+.hand-result-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn-hand-restart {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+  transition: all 0.18s;
+}
+.btn-hand-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(124,58,237,0.5); }
+
+.btn-hand-back {
+  background: rgba(0,0,0,0.3);
+  color: var(--text-muted);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 28px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-hand-back:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.25); }
+
