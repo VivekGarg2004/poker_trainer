@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Trainer — 9-Handed Tournament</title>
+  <meta name="description" content="Practice Texas Hold'em pre-flop and post-flop scenarios for a 9-player tournament with GTO-grounded feedback.">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="logo">
+      <span>🃏</span> Poker Trainer
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill">9-Handed Tournament</div>
+      <div class="stat-pill">Score: <span id="stat-score">0/0</span></div>
+    </div>
+  </header>
+
+  <!-- ── Progress bar ── -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <!-- ── Game Area ── -->
+  <main id="game-area">
+
+    <!-- Scenario counter -->
+    <div class="scenario-counter-area" id="counter-text">Scenario 1 of 30</div>
+
+    <!-- Seat visual -->
+    <div class="seats-visual" id="seats-visual"></div>
+
+    <!-- Scene card -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scenario-type-badge" id="scenario-badge">PREFLOP</span>
+        <span class="position-chip" id="hero-position">BTN</span>
+      </div>
+
+      <!-- Info grid -->
+      <div class="info-grid">
+        <div class="info-cell">
+          <span class="info-label">Blinds</span>
+          <span class="info-value" id="info-blinds">—</span>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Your Stack</span>
+          <span class="info-value" id="info-stack">—</span>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Pot Size</span>
+          <span class="info-value" id="info-pot">—</span>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Format</span>
+          <span class="info-value" id="info-players">9-handed</span>
+        </div>
+      </div>
+
+      <!-- Villain action description -->
+      <div class="villain-action-bar" id="villain-bar"></div>
+
+      <!-- Community board (post-flop) -->
+      <div class="board-section" id="board-section" style="display:none">
+        <div class="board-label">Community Cards</div>
+        <div class="board" id="board-cards"></div>
+      </div>
+
+      <!-- Hero hand -->
+      <div class="hero-section">
+        <div class="hero-label-area">
+          <div class="hero-label">Your Hand</div>
+          <div class="hero-hand-name" id="hero-hand-name"></div>
+        </div>
+        <div class="hero-cards" id="hero-cards"></div>
+      </div>
+    </div>
+
+    <!-- Action area -->
+    <div class="action-area">
+      <div class="action-prompt">
+        What is your action? <span style="color:var(--text-muted);font-size:0.78rem;font-weight:400;">(keyboard: F=Fold, C=Call, R=Raise, K=Check)</span>
+      </div>
+      <div class="action-buttons" id="action-buttons"></div>
+    </div>
+
+    <!-- Explanation panel (shown after action) -->
+    <div class="explanation-panel" id="explanation-panel">
+      <div class="explanation-result">
+        <span id="result-icon"></span>
+        <span class="result-label"></span>
+      </div>
+      <div class="best-action-row">
+        <span class="best-action-label">Best Play</span>
+        <span class="best-action-value" id="best-action-value"></span>
+      </div>
+      <div class="explanation-text" id="explanation-text"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+        <button class="btn btn-next" id="btn-next">Next Scenario →</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── End Screen ── -->
+  <div class="end-screen" id="end-screen">
+    <div class="end-title">🃏 Session Complete!</div>
+    <div class="end-score-circle" style="--pct:0% 100%">
+      <div class="end-score-text" id="end-score-text">0/0</div>
+    </div>
+    <div class="end-grade"></div>
+    <button class="btn-restart" id="btn-restart">Play Again ↺</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
